@@ -1,15 +1,19 @@
 # Connect Between 3 and 5 -- Chaos Edition
 
-# Overview
-
+## Overview
+---
 All though Connect 4 was first published by Milton-Bradley (now Hasbro) in 1974, that game is much older. In fact, Captain Cook was known for spending may hours playing this classic game with crewmates while out at see.
 In Connect Between 3 and 5 -- Chaos Edition, two players will face off head-to-head, playing the classic game with a few twists:
 - When a line of between 3 and 5 is made, instead of the game ending, the player who controls that color will earn 1000, and the tokens in that line will be removed, allowing any tokens above them to fall into the new space. This can cause chain-reactions where additional lines are removed
 - After every third round, the game board will randomly rotate 90 degrees, either clockwise or counter-clockwise, and the tokens will shift accordingly.
 - The first player to earn 1000 of points wins, or the player with the highest number of points will win if the gameboard is entirely filled
+### Technologies Used:
+- HTML5
+- CSS
+- JavaScript
 
 ## User Stories
-
+---
 - As a user, I want the ability to start the game.
 - As a user, I want the ability to clearly know whose turn it is.
 - As a user, I want the ability to refrence the rules at anytime, without ending the game.
@@ -25,19 +29,21 @@ In Connect Between 3 and 5 -- Chaos Edition, two players will face off head-to-h
 - As a user, I want the ability to see an indication when a player wins and which player it was with final scores.
 - As a user, I want the ability to be able to start a new game when the game ends.
 
-# Wireframes
-
-## Layout upon loading the webpage
+## Wireframes
+---
+### Layout upon loading the webpage
 ![ConnectBetween3and4Splash](README-images/screen-on-load.png)
-## Layout upon starting a new game
+### Layout upon starting a new game
 ![ConnectBetween3and4NewGame](README-images/screen-on-new-game.png)
-## Basic Game Flow
+### Basic Game Flow
 (Yellow player selects a column, yellow player scores between 3 and 5 in a row,
 line is cleared scoring red a between 3 and 5 in a row, the new scoring line is cleared, board rotates and updates token positions)
 ![ConnectBetween3and4GameFlow](README-images/basic-game-flow.png)
-## Various Messages Appear Over the Current Screen
+### Various Messages Appear Over the Current Screen
 ![ConnectBetween3and4Messages](README-images/various-messages.png)
+
 ## ERD's
+---
 As no Database is being used, the following represents main game flow outline
 
 I will be manipulating flex boxes or grid boxes in the DOM for all animations, and using simple algorithms and objects for win/score detections
@@ -53,7 +59,7 @@ gameBoard [
 ]
 token {
     color: (which player it represents)
-    location: (which loaction on the gamBoard array)
+    location: (gameBoard[x])
 }
 
 function - placeToken - alows token to be placed in any available column
