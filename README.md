@@ -1,6 +1,6 @@
 # Connect Between 3 and 5 -- Chaos Edition
 
-## Overview
+# Overview
 
 All though Connect 4 was first published by Milton-Bradley (now Hasbro) in 1974, that game is much older. In fact, Captain Cook was known for spending may hours playing this classic game with crewmates while out at see.
 In Connect Between 3 and 5 -- Chaos Edition, two players will face off head-to-head, playing the classic game with a few twists:
@@ -25,6 +25,41 @@ In Connect Between 3 and 5 -- Chaos Edition, two players will face off head-to-h
 - As a user, I want the ability to see an indication when a player wins and which player it was with final scores.
 - As a user, I want the ability to be able to start a new game when the game ends.
 
-## Wireframes
+# Wireframes
 
+## Layout upon loading the webpage
+![ConnectBetween3and4Splash](README-images/screen-on-load.png)
+## Layout upon starting a new game
+![ConnectBetween3and4NewGame](README-images/screen-on-new-game.png)
+## Basic Game Flow
+(Yellow player selects a column, yellow player scores between 3 and 5 in a row,
+line is cleared scoring red a between 3 and 5 in a row, the new scoring line is cleared, board rotates and updates token positions)
+![ConnectBetween3and4GameFlow](README-images/basic-game-flow.png)
+## Various Messages Appear Over the Current Screen
+![ConnectBetween3and4Messages](README-images/various-messages.png)
 ## ERD's
+As no Database is being used, the following represents main game flow outline
+
+I will be manipulating flex boxes or grid boxes in the DOM for all animations, and using simple algorithms and objects for win/score detections
+
+```
+gameBoard [
+    1,2,3,4,5,6,7,
+    8,9,10,11,12,13,14,
+    15,16,17,18,19,20,21,
+    22,23,24,25,26,27,28,
+    29,30,31,32,33,34,35,
+    36,37,38,39,40,41,42
+]
+token {
+    color: (which player it represents)
+    location: (which loaction on the gamBoard array)
+}
+
+function - placeToken - alows token to be placed in any available column
+function - detectLine - looks at each row top to bottom for a scoring shape using math based on the gameBoard Array (a column would be current position plus 7 + 14 + 21 all being the same color). Returns boolean
+function - removeLine - removes a line that scores, then runs repositon(), then detectLine and repeats until detectLine fails
+function - rotateGameBoard - rotates the DOM game board +- 90 degrees then runs repostion(), detectLine, then removeLine
+function - repostion - move all tokens that can move based on tokens being removed or game board rotating
+
+```
