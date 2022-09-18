@@ -57,7 +57,7 @@ token {
 }
 
 function - placeToken - alows token to be placed in any available column
-function - detectLine - looks at each row top to bottom for a scoring shape using math based on the gameBoard Array (a column would be current position plus 7 + 14 + 21 all being the same color). Returns boolean
+function - detectLine - looks at each row top to bottom for a scoring shape using math based on the gameBoard Array and current game board orientation (a column in north or south orientation would be current position plus 7 + 14 + 21 all being the same color). Returns boolean
 function - removeLine - removes a line that scores, then runs repositon(), then detectLine and repeats until detectLine fails
 function - rotateGameBoard - rotates the DOM game board +- 90 degrees then runs repostion(), detectLine, then removeLine
 function - repostion - move all tokens that can move based on tokens being removed or game board rotating
