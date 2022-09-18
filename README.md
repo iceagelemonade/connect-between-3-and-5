@@ -18,7 +18,7 @@ In Connect Between 3 and 5 -- Chaos Edition, two players will face off head-to-h
 - As a user, I want the ability to see an announcment when it is the next players turn, that can be closed manually, or close automatically after a certain amount of time.
 - As a user, I want the ability to recieve a seperate warning when there is only one round remaining before the game board rotates.
 - As a user, I want the ability to be able to place my colored token when it is my turn.
-- As a user, I want the ability to see a viual indication for which column I will drop my token into before I commit, and know where the token will ultimately end up.
+- As a user, I want the ability to see a visual indication for which column I will drop my token into before I commit, and know where the token will ultimately end up.
 - As a user, I want the ability to see a visual indication when I achieve four in a row.
 - As a user, I want the ability to see an animation when this 4 in a row is removed and the rest of the tokens move because of it.
 - As a user, I want the ability to see an animation for when the gameboard rotates and the move accordingly.
