@@ -48,18 +48,25 @@ As no Database is being used, the following represents main game flow outline
 
 I will be manipulating flex boxes or grid boxes in the DOM for all animations, and using simple algorithms and objects for win/score detections
 
+the game will be handling DOM manipulations and score computing seperately
+
 ```
-gameBoard [
-    1,2,3,4,5,6,7,
-    8,9,10,11,12,13,14,
-    15,16,17,18,19,20,21,
-    22,23,24,25,26,27,28,
-    29,30,31,32,33,34,35,
-    36,37,38,39,40,41,42
-]
+// for line detection an poistioning we only need to know each space available, if there is a token in that place, and who controls it. this can be done as such: 
+gameBoardArr [{isOccupied: false, player: 0},{isOccupied: false, player: 0},{isOccupied: false, player: 0}...]
+// ... which will be created by:
+const gameBoardArr = []
+for (let i = 0; i < 42; i++) {
+    gameBoardArr.push({isOccupied: false, player: 0})
+}
+
+// we will also use object classes to make the tokens appear in the DOM
 token {
     color: (which player it represents)
-    location: (gameBoard[x])
+    initialLocation: (column (div) selected by player)
+    finalLocation: (grid location (div) where the token will end)
+    animate = function () {
+        (some function that allows the token to fall from the initial location to the final and animate it accordingly)
+    }
 }
 
 function - placeToken - alows token to be placed in any available column
