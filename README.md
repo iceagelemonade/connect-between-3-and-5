@@ -76,3 +76,18 @@ function - rotateGameBoard - rotates the DOM game board +- 90 degrees then runs 
 function - repostion - move all tokens that can move based on tokens being removed or game board rotating
 
 ```
+
+## Schedule for Delivery
+---
+### Monday
+- Build basic layout for app
+- Begin script for drawing game board and notifications
+### Tuesday
+- Work on game script logic
+### Wednesday
+- Finish game logic
+### Thursday
+- work on animations
+### Friday
+- Finalize game layout
+- Deploy app
