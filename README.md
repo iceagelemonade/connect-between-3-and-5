@@ -4,7 +4,7 @@
 ---
 All though Connect 4 was first published by Milton-Bradley (now Hasbro) in 1974, that game is much older. In fact, Captain Cook was known for spending may hours playing this classic game with crewmates while out at see.
 In Connect Between 3 and 5 -- Chaos Edition, two players will face off head-to-head, playing the classic game with a few twists:
-- When a line of between 3 and 5 is made, instead of the game ending, the player who controls that color will earn 1000, and the tokens in that line will be removed, allowing any tokens above them to fall into the new space. This can cause chain-reactions where additional lines are removed
+- When a line of between 3 and 5 is made, instead of the game ending, the player who controls that color will earn 100 points, and the tokens in that line will be removed, allowing any tokens above them to fall into the new space. This can cause chain-reactions where additional lines are removed.
 - After every third round, the game board will randomly rotate 90 degrees, either clockwise or counter-clockwise, and the tokens will shift accordingly.
 - The first player to earn 1000 of points wins, or the player with the highest number of points will win if the gameboard is entirely filled
 ### Technologies Used:
