@@ -48,13 +48,12 @@ const addToken = (e) => {
     // and also what to subtract as we look up the stack
     let toSubtract = isOrientationNormal?7:6
 
+    let maxCheck = isOrientationNormal?6:7
+
     let currentPlayer = turnCount%2===0?secondPlayer:firstPlayer
 
-    for (let i = 0; i < toSubtract; i++) {
-        if (squareToCheck < 0) {
-            console.log('invalid move')
-        
-        } else if (!currentTokensOnBoard[squareToCheck].isOccupied) {
+    for (let i = 0; i < maxCheck; i++) {
+         if (!currentTokensOnBoard[squareToCheck].isOccupied) {
             currentTokensOnBoard[squareToCheck].isOccupied = true
             currentTokensOnBoard[squareToCheck].controlledBy = currentPlayer
             document.getElementById('space'+squareToCheck).style.backgroundColor = currentPlayer.color
@@ -174,7 +173,6 @@ document.addEventListener('DOMContentLoaded', flipAnimation())
 
 const refreshTokenArr = (deg) => {
     let newArr = []
-    // createTokenArr(newArr)
     let start = deg===90?42:-1
     let col = isOrientationNormal?6:7
     let move = deg===90?col*-1:col
@@ -186,7 +184,6 @@ const refreshTokenArr = (deg) => {
             prev = start + (reset*(i/maxCol))
         }
         newArr[i] = currentTokensOnBoard[prev + move] 
-        // newArr[prev + move] = currentTokensOnBoard[i] 
         prev = prev + move
     }
     console.log('this is the old arr:\n',currentTokensOnBoard)
