@@ -30,8 +30,9 @@ const createTokenArr = (arr) => {
 
 const startGame = () => {
     document.getElementById('start-button').remove()
-    drawGameBoard()
     createTokenArr(currentTokensOnBoard)
+    drawGameBoard()
+
     console.log('Current Token Placement is:/n', currentTokensOnBoard)
     turnCount = 1
 }
@@ -71,6 +72,11 @@ const addToken = (e) => {
 
 // when a turn starts, before location is selected
 const startTurn = () => {
+    const divsToClear = document.querySelectorAll('.selector')
+    while (divsToClear.length > 0) {
+        document.remove(divsToClear)
+        console.log('removed')
+    }
     const start = isOrientationNormal?2:3
     const row = isOrientationNormal?'2 / 9':'1 / 9'
     let id = 0
@@ -89,6 +95,9 @@ const startTurn = () => {
 
 // Below is the function that draws the gameboard after the game begins
 const drawGameBoard = () => {
+    // change container classes
+    const newCLass = isOrientationNormal?'standard':'rotated'
+    gameBoardContainer.setAttribute('class', newCLass)
     const colMax = 8
     const colMin = isOrientationNormal?2:3
     const rowMin = isOrientationNormal?3:2
@@ -109,6 +118,10 @@ const drawGameBoard = () => {
         newSquare.style.gridRow = row
         newSquareOverlay.style.gridColumn = col
         newSquareOverlay.style.gridRow = row
+        if (currentTokensOnBoard[i].isOccupied === true) {
+            newSquare.style.backgroundColor = currentTokensOnBoard[i].controlledBy.color
+        }
+
         gameBoardContainer.appendChild(newSquare)
         gameBoardContainer.appendChild(newSquareOverlay)
         col++
@@ -146,3 +159,78 @@ const flipAnimation = () => {
 }
 
 document.addEventListener('DOMContentLoaded', flipAnimation())
+
+
+// const refreshTokenArr = (deg) => {
+//     if (deg===90 && isOrientationNormal === false) {
+//         let newArr = [
+//             currentTokensOnBoard[35]
+//         ]
+//     }
+// }
+
+
+
+
+const refreshTokenArr = (deg) => {
+    let newArr = []
+    // createTokenArr(newArr)
+    let start = deg===90?42:-1
+    let col = isOrientationNormal?6:7
+    let move = deg===90?col*-1:col
+    let prev = start
+    let reset = deg===90?1:-1
+    let maxCol = isOrientationNormal?7:6
+    for (i = 0; i < 42; i++) {
+        if (i%maxCol===0) {
+            prev = start + (reset*(i/maxCol))
+        }
+        newArr[i] = currentTokensOnBoard[prev + move] 
+        // newArr[prev + move] = currentTokensOnBoard[i] 
+        prev = prev + move
+    }
+    console.log('this is the old arr:\n',currentTokensOnBoard)
+    currentTokensOnBoard = newArr
+    console.log('this is the new arr:\n',currentTokensOnBoard)    
+}
+
+// const refreshTokenArr = (deg) => {
+//     let newArr = []
+//     createTokenArr(newArr)
+//     let start = deg===90?-1:42
+//     let col = isOrientationNormal?6:7
+//     let move = deg===90?col*-1:col
+//     let prev = start
+//     console.log('some values and stuff',start,col,move,prev)
+//     for (i = 0; i < 43; i = i + col) {
+        
+//         for (c = 0; c < col; c++){
+//             console.log(i+c)
+//             console.log(currentTokensOnBoard[i+c])
+//             newArr[prev + move] = currentTokensOnBoard[i + c]
+//             prev += move
+//         }
+
+//         prev = (deg===90)?start-= 1:start+= 1
+//         // (deg===-90)?start+= 1:start=start
+//     }
+//     console.log('this is the old arr:\n',currentTokensOnBoard)
+//     currentTokensOnBoard = newArr
+//     console.log('this is the new arr:\n',currentTokensOnBoard)
+// }
+
+const rotate = (direction) => {
+    const deg = direction === 'cw'?90:-90
+    console.log('this is deg: ',deg)
+    gameBoardContainer.style.transform = "rotate("+deg+"deg)"
+    isOrientationNormal = !isOrientationNormal
+    setTimeout(()=>{
+        console.log('redrawing now')
+        refreshTokenArr(deg)
+        while (gameBoardContainer.firstChild) {
+            gameBoardContainer.removeChild(gameBoardContainer.firstChild)
+        }
+        gameBoardContainer.style.transform = "rotate(0deg)"
+        drawGameBoard()
+    }, 5000)
+}
