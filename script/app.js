@@ -5,7 +5,7 @@
 //     document.querySelector('.gameboard-container').style.transform="rotate("+degreesToRotate+"deg)"
     
 // }
-const gameBoardContainer = document.querySelector('.gameboard-container')
+const gameBoardContainer = document.querySelector('#gameboard-container')
 let isOrientationNormal = true
 
 const startGame = () => {
@@ -15,38 +15,49 @@ const startGame = () => {
 
 // when a turn starts, before location is selected
 const startTurn = () => {
-    const start = isOrientationNormal?0:1
-    for (i=start; i < 7; i++) {
+    const start = isOrientationNormal?2:3
+    const row = isOrientationNormal?'2 / 9':'1 / 9'
+    for (i=start; i < 9; i++) {
         const selector = document.createElement('div')
         selector.classList.add('selector')
-        selector.setAttribute('id', 'selector'+i)
+        selector.style.zIndex = 3
+        selector.style.gridColumn = i
+        selector.style.gridRow = row
         gameBoardContainer.appendChild(selector)
-        isOrientationNormal?undefined:selector.style.gridRow='1 / 9'
     }
 }
 
 // Below is the function that draws the gameboard after the game begins
 const drawGameBoard = () => {
-    // const cover = document.createElement('div')
-    // cover.classList.add('tester')
-    // gameBoardContainer.appendChild(cover)
+    const colMax = 8
+    const colMin = isOrientationNormal?2:3
+    const rowMin = isOrientationNormal?3:2
+    let col = colMin
+    let row = rowMin
     for (i = 0; i < 42; i++) {
-        let prefix = isOrientationNormal?'':'rotated-'
+        if (col > colMax) {
+            row++
+            col = colMin
+        }
+
         const newSquare = document.createElement('div')
         const newSquareOverlay = document.createElement('div')
         newSquare.classList.add('gameboard-space')
         newSquareOverlay.classList.add('overlay')
-        newSquare.setAttribute('id', prefix+'space'+i)
-        newSquareOverlay.setAttribute('id', prefix+'space'+i)
+        newSquare.style.gridColumn = col
+        newSquare.style.gridRow = row
+        newSquareOverlay.style.gridColumn = col
+        newSquareOverlay.style.gridRow = row
         gameBoardContainer.appendChild(newSquare)
         gameBoardContainer.appendChild(newSquareOverlay)
+        col++
     }
     // remove after testing is done
     startTurn()
     // testing shading
-    const shadow = document.createElement('div')
-    shadow.classList.add('shadow')
-    gameBoardContainer.appendChild(shadow)
+    // const shadow = document.createElement('div')
+    // shadow.classList.add('shadow')
+    // gameBoardContainer.appendChild(shadow)
 }
 
 // Below is the code for the animations in the upper-right and upper-left corners
