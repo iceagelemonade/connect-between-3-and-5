@@ -5,6 +5,7 @@
 //     document.querySelector('.gameboard-container').style.transform="rotate("+degreesToRotate+"deg)"
     
 // }
+const mainContainer = document.querySelector('.main-container')
 const gameBoardContainer = document.querySelector('#gameboard-container')
 let isOrientationNormal = true
 const columns = () => isOrientationNormal?7:6
@@ -47,9 +48,21 @@ const scoringPositionsRotated = [
     {row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false}
 ]
 
+const detectWin = () => {
+    if (player1Score >= 1000 || player2Score >= 1000) {
+        if (player1Score > player2Score) {
+            console.log('Player 1 wins')
+        } else if (player2Score > player1Score) {
+            console.log('Player 2 wins')
+        } else {
+            console.log(`It's a tie!`)
+        }
+    }
+}
+
 const score = () => {
     let scoring = false    
-    for (let i =0; i < 41; i++){
+    for (let i =0; i < 42; i++){
         if (currentTokensOnBoard[i].remove === true) {
             currentTokensOnBoard[i].controlledBy.name === 'player1'?player1Score+=25:player2Score+=25
             // name += 25
@@ -60,8 +73,11 @@ const score = () => {
     if (scoring === true) {
         clearGameBoard()
         drawGameBoard()
+        document.querySelector('#player1-score').innerText = player1Score
+        document.querySelector('#player2-score').innerText = player2Score
         console.log('Player 1 score: ', player1Score,'\nPlayer 2 score: ',player2Score)
         checkBeneath()
+        detectWin()
     } else {return}
 }
 
@@ -154,7 +170,16 @@ const startGame = () => {
     document.getElementById('start-button').remove()
     createTokenArr(currentTokensOnBoard)
     drawGameBoard()
-
+    let scoreboard1 = document.createElement('div')
+    let scoreboard2 = document.createElement('div')
+    scoreboard1.classList.add('scoreboard')
+    scoreboard2.classList.add('scoreboard')
+    scoreboard1.setAttribute('id', 'player1')
+    scoreboard2.setAttribute('id', 'player2')
+    scoreboard1.innerHTML = 'PLAYER<br />1<br />Score:<br /><span id="player1-score">0</span>'
+    scoreboard2.innerHTML = 'PLAYER<br />2<br />Score:<br /><span id="player2-score">0</span>'
+    mainContainer.appendChild(scoreboard1)
+    mainContainer.appendChild(scoreboard2)
     console.log('Current Token Placement is:/n', currentTokensOnBoard)
     turnCount = 1
 }
