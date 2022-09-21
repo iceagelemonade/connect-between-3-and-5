@@ -23,11 +23,101 @@ const secondPlayer = {
 }
 let turnCount = 0
 
+// these are used for checking scoring playfields:
+const scoringPositionsStandard = [
+    {row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:true},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},
+    {row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:true},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},
+    {row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:true},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},
+    {row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},
+    {row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},
+    {row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false}
+]
 
+const scoringPositionsRotated = [
+    {row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},
+    {row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},
+    {row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},
+    {row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},
+    {row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},
+    {row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},
+    {row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false}
+]
+
+const detectScore = () => {
+    const checkArr = isOrientationNormal?scoringPositionsStandard:scoringPositionsRotated
+    for (i = 0; i < 42; i++) {
+        // first, check is position is occupied
+        if (currentTokensOnBoard[i].isOccupied === true) {
+            // check row
+            if (checkArr[i].row === true) {
+                let rowCheck = 1
+                for (r = i+1; r < i+4; r++) {
+                    if (currentTokensOnBoard[r].controlledBy === currentTokensOnBoard[i].controlledBy && currentTokensOnBoard[r].isOccupied === true) {
+                        rowCheck++
+                        console.log(`row check 1`)
+                    }
+                }
+                if (rowCheck === 4) {
+                    console.log(`row check 2`)
+                    currentTokensOnBoard[i].remove = true
+                    currentTokensOnBoard[i+1].remove = true
+                    currentTokensOnBoard[i+2].remove = true
+                    currentTokensOnBoard[i+3].remove = true
+                } 
+            }
+            // check column
+            if (checkArr[i].column === true) {
+                let colCheck = 1
+                for (c = i+columns(); c <= i+(columns()*3); c = c + columns()) {
+                    if (currentTokensOnBoard[c].controlledBy === currentTokensOnBoard[i].controlledBy && currentTokensOnBoard[c].isOccupied === true) {
+                        colCheck++
+                    }
+                }
+                if (colCheck === 4) {
+                    currentTokensOnBoard[i].remove = true
+                    currentTokensOnBoard[i+columns()].remove = true
+                    currentTokensOnBoard[i+(columns()*2)].remove = true
+                    currentTokensOnBoard[i+(columns()*3)].remove = true
+                }
+            }
+            // check Diaganol 1
+            if (checkArr[i].d1 === true) {
+                let diaCheck = 1
+                for (d = i+(columns()+1); d <= i+((columns()+1)*3); d = d + (columns()+1)) {
+                    if (currentTokensOnBoard[d].controlledBy === currentTokensOnBoard[i].controlledBy && currentTokensOnBoard[d].isOccupied === true) {
+                        diaCheck++
+                    }
+                }
+                if (diaCheck === 4) {
+                    currentTokensOnBoard[i].remove = true
+                    currentTokensOnBoard[i+(columns()+1)].remove = true
+                    currentTokensOnBoard[i+((columns()+1)*2)].remove = true
+                    currentTokensOnBoard[i+((columns()+1)*3)].remove = true
+                }
+            }
+            // check Diaganol 2
+            if (checkArr[i].d2 === true) {
+                let diaCheck = 1
+                for (d = i+(columns()-1); d <= i+((columns()-1)*3); d = d + (columns()-1)) {
+                    if (currentTokensOnBoard[d].controlledBy === currentTokensOnBoard[i].controlledBy && currentTokensOnBoard[d].isOccupied === true) {
+                        diaCheck++
+                    }
+                }
+                if (diaCheck === 4) {
+                    currentTokensOnBoard[i].remove = true
+                    currentTokensOnBoard[i+(columns()-1)].remove = true
+                    currentTokensOnBoard[i+((columns()-1)*2)].remove = true
+                    currentTokensOnBoard[i+((columns()-1)*3)].remove = true
+                }
+            }
+        }
+    }
+    console.log(`Token placement after detectScore:\n`,currentTokensOnBoard)
+}
 
 const createTokenArr = (arr) => {
     for (i = 0; i < 42; i++) {
-        arr.push({isOccupied: false, controlledBy: null, spacesBeneath: 0})
+        arr.push({isOccupied: false, controlledBy: null, spacesBeneath: 0, remove: false})
     }
 }
 
@@ -143,16 +233,16 @@ const drawGameBoard = () => {
 }
 
 const fillBeneath = () => {
-    console.log(`this is after checkBeneath:\n`,currentTokensOnBoard)
+    // console.log(`this is after checkBeneath:\n`,currentTokensOnBoard)
     clearGameBoard()
     for (let i = 41; i >= 0; i--) {
         if (currentTokensOnBoard[i].spacesBeneath > 0) {
             currentTokensOnBoard[i+(currentTokensOnBoard[i].spacesBeneath * columns())] = currentTokensOnBoard[i]
             currentTokensOnBoard[i+(currentTokensOnBoard[i].spacesBeneath * columns())].spacesBeneath = 0
-            currentTokensOnBoard[i] = {isOccupied: false, controlledBy: null, spacesBeneath: 0}
+            currentTokensOnBoard[i] = {isOccupied: false, controlledBy: null, spacesBeneath: 0, remove: false}
         }
     }
-    console.log(`this is after fillBeneath:\n`,currentTokensOnBoard)
+    // console.log(`this is after fillBeneath:\n`,currentTokensOnBoard)
     drawGameBoard()
 }
 
@@ -163,7 +253,7 @@ const checkBeneath = () => {
                 if (currentTokensOnBoard[c].isOccupied === false) {
                     // console.log(currentTokensOnBoard[i])
                     currentTokensOnBoard[i].spacesBeneath += 1
-                    console.log(currentTokensOnBoard[i], currentTokensOnBoard[i].spacesBeneath)
+                    // console.log(currentTokensOnBoard[i], currentTokensOnBoard[i].spacesBeneath)
                 }
             }
         }
@@ -171,50 +261,22 @@ const checkBeneath = () => {
     fillBeneath()
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Below is the code for the animations in the upper-right and upper-left corners
-const flipAnimation = () => {
-    let left = 0
-    let right = 18
-    const leftImg = document.getElementById('logo-left-coin')
-    const rightImg = document.getElementById('logo-right-coin')
-    const imageArr = [0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350]
-    
-    const getImage = () => {
-        left === 35? left = 0: left = left
-        const toLoadL = imageArr[left]
-        leftImg.src='./coin-flip-red-yellow/'+toLoadL+'.png'
-        left++
-        right === -1? right = 34: right = right
-        const toLoadR = imageArr[right]
-        rightImg.src='./coin-flip-red-yellow/'+toLoadR+'.png'
-        right--
-        
-    }
-
-    const spinLeft = setInterval(getImage, 60)
-}
-
-document.addEventListener('DOMContentLoaded', flipAnimation())
-
 const refreshTokenArr = (deg) => {
     let newArr = []
     let start = deg===90?42:-1
-    let col = isOrientationNormal?6:7
-    let move = deg===90?col*-1:col
+    let move = deg===90?rows()*-1:rows()
     let prev = start
     let reset = deg===90?1:-1
-    let maxCol = isOrientationNormal?7:6
     for (i = 0; i < 42; i++) {
-        if (i%maxCol===0) {
-            prev = start + (reset*(i/maxCol))
+        if (i%columns()===0) {
+            prev = start + (reset*(i/columns()))
         }
         newArr[i] = currentTokensOnBoard[prev + move] 
         prev = prev + move
     }
-    console.log('this is the old arr:\n',currentTokensOnBoard)
+    // console.log('this is the old arr:\n',currentTokensOnBoard)
     currentTokensOnBoard = newArr
-    console.log('this is the new arr:\n',currentTokensOnBoard)    
+    // console.log('this is the new arr:\n',currentTokensOnBoard)    
 }
 
 // const refreshTokenArr = (deg) => {
@@ -244,11 +306,11 @@ const refreshTokenArr = (deg) => {
 
 const rotate = (direction) => {
     const deg = direction === 'cw'?90:-90
-    console.log('this is deg: ',deg)
+    // console.log('this is deg: ',deg)
     gameBoardContainer.style.transform = "rotate("+deg+"deg)"
     isOrientationNormal = !isOrientationNormal
     // setTimeout(()=>{
-        console.log('redrawing now')
+        // console.log('redrawing now')
         refreshTokenArr(deg)
         clearGameBoard()
         gameBoardContainer.style.transform = "rotate(0deg)"
@@ -256,3 +318,31 @@ const rotate = (direction) => {
         checkBeneath()
     // }, 3000)
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Below is the code for the animations in the upper-right and upper-left corners
+const flipAnimation = () => {
+    let left = 0
+    let right = 18
+    const leftImg = document.getElementById('logo-left-coin')
+    const rightImg = document.getElementById('logo-right-coin')
+    const imageArr = [0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350]
+    
+    const getImage = () => {
+        left === 35? left = 0: left = left
+        const toLoadL = imageArr[left]
+        leftImg.src='./coin-flip-red-yellow/'+toLoadL+'.png'
+        left++
+        right === -1? right = 34: right = right
+        const toLoadR = imageArr[right]
+        rightImg.src='./coin-flip-red-yellow/'+toLoadR+'.png'
+        right--
+        
+    }
+
+    const spinLeft = setInterval(getImage, 60)
+}
+
+document.addEventListener('DOMContentLoaded', flipAnimation())
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
