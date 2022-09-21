@@ -11,6 +11,9 @@ let isOrientationNormal = true
 const columns = () => isOrientationNormal?7:6
 const rows = () => isOrientationNormal?6:7
 
+let player1ColorChoice = null
+let player2ColorChoice = null
+
 let player1Score = 0
 let player2Score = 0
 
@@ -27,6 +30,8 @@ const secondPlayer = {
 }
 
 let turnCount = 0
+
+const imageArr = [0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350]
 
 // these are used for checking scoring playfields:
 const scoringPositionsStandard = [
@@ -369,6 +374,52 @@ const rotate = (direction) => {
     // }, 3000)
 }
 
+//////////////////////////////////////////////
+// whose first?
+
+
+// const result = document.getElementById('result')
+const image = document.getElementById('coin')
+let i = 0
+
+const getImage = () => {
+    i === 35? i = 0: i = i
+    const toLoad = imageArr[i]
+    image.src='./coin-flip-red-yellow/'+toLoad+'.png'
+    i++
+}
+let timer = null
+const pickPlayerAnimation = () => {
+    // result.innerText=""
+    i = 0
+    let endTime = Math.floor(Math.random() * 2) === 1?1750: 2280
+    console.log(endTime)
+    let timerFast = setInterval(getImage, 10)
+    let timerFastEnd = setTimeout(() => {
+        console.log('medium timer starting')
+        clearInterval(timerFast)
+        let timerMed = setInterval(getImage, 20)
+        setTimeout(() => {
+            console.log('slow timer starting')
+            clearInterval(timerMed)
+            let timerSlow = setInterval(getImage, 30)
+            setTimeout(() => {
+                clearInterval(timerSlow)
+                },endTime)
+        },2210)
+
+    },2880)
+    let displayWinner = setTimeout(() => {
+        console.log('display winner')
+        // endTime === 1750?result.innerText = "Yellow Goes First!": result.innerText = "Red Goes First!"
+    }, 5390 + endTime)
+}
+
+
+
+
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Below is the code for the animations in the upper-right and upper-left corners
 const flipAnimation = () => {
@@ -376,7 +427,7 @@ const flipAnimation = () => {
     let right = 18
     const leftImg = document.getElementById('logo-left-coin')
     const rightImg = document.getElementById('logo-right-coin')
-    const imageArr = [0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350]
+
     
     const getImage = () => {
         left === 35? left = 0: left = left
