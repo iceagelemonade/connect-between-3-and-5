@@ -7,6 +7,9 @@
 // }
 const gameBoardContainer = document.querySelector('#gameboard-container')
 let isOrientationNormal = true
+const columns = () => isOrientationNormal?7:6
+const rows = () => isOrientationNormal?6:7
+
 let currentTokensOnBoard = []
 const color1 = '#ffff00'
 const color2 = '#ff0000'
@@ -24,7 +27,13 @@ let turnCount = 0
 
 const createTokenArr = (arr) => {
     for (i = 0; i < 42; i++) {
-        arr.push({isOccupied: false, controlledBy: null})
+        arr.push({isOccupied: false, controlledBy: null, spacesBeneath: 0})
+    }
+}
+
+const clearGameBoard =() => {
+    while (gameBoardContainer.firstChild) {
+        gameBoardContainer.removeChild(gameBoardContainer.firstChild)
     }
 }
 
@@ -71,11 +80,11 @@ const addToken = (e) => {
 
 // when a turn starts, before location is selected
 const startTurn = () => {
-    const divsToClear = document.querySelectorAll('.selector')
-    while (divsToClear.length > 0) {
-        document.remove(divsToClear)
-        console.log('removed')
-    }
+    // const divsToClear = document.querySelectorAll('.selector')
+    // while (divsToClear.length > 0) {
+    //     document.remove(divsToClear)
+    //     console.log('removed')
+    // }
     const start = isOrientationNormal?2:3
     const row = isOrientationNormal?'2 / 9':'1 / 9'
     let id = 0
@@ -133,6 +142,35 @@ const drawGameBoard = () => {
     // gameBoardContainer.appendChild(shadow)
 }
 
+const fillBeneath = () => {
+    console.log(`this is after checkBeneath:\n`,currentTokensOnBoard)
+    clearGameBoard()
+    for (let i = 41; i >= 0; i--) {
+        if (currentTokensOnBoard[i].spacesBeneath > 0) {
+            currentTokensOnBoard[i+(currentTokensOnBoard[i].spacesBeneath * columns())] = currentTokensOnBoard[i]
+            currentTokensOnBoard[i+(currentTokensOnBoard[i].spacesBeneath * columns())].spacesBeneath = 0
+            currentTokensOnBoard[i] = {isOccupied: false, controlledBy: null, spacesBeneath: 0}
+        }
+    }
+    console.log(`this is after fillBeneath:\n`,currentTokensOnBoard)
+    drawGameBoard()
+}
+
+const checkBeneath = () => {
+    for (let i = 0; i < 42; i++) {
+        if (currentTokensOnBoard[i].isOccupied === true) {
+            for (let c = i + columns(); c < 42; c = c + columns()) {
+                if (currentTokensOnBoard[c].isOccupied === false) {
+                    // console.log(currentTokensOnBoard[i])
+                    currentTokensOnBoard[i].spacesBeneath += 1
+                    console.log(currentTokensOnBoard[i], currentTokensOnBoard[i].spacesBeneath)
+                }
+            }
+        }
+    }
+    fillBeneath()
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Below is the code for the animations in the upper-right and upper-left corners
 const flipAnimation = () => {
@@ -158,18 +196,6 @@ const flipAnimation = () => {
 }
 
 document.addEventListener('DOMContentLoaded', flipAnimation())
-
-
-// const refreshTokenArr = (deg) => {
-//     if (deg===90 && isOrientationNormal === false) {
-//         let newArr = [
-//             currentTokensOnBoard[35]
-//         ]
-//     }
-// }
-
-
-
 
 const refreshTokenArr = (deg) => {
     let newArr = []
@@ -221,13 +247,12 @@ const rotate = (direction) => {
     console.log('this is deg: ',deg)
     gameBoardContainer.style.transform = "rotate("+deg+"deg)"
     isOrientationNormal = !isOrientationNormal
-    setTimeout(()=>{
+    // setTimeout(()=>{
         console.log('redrawing now')
         refreshTokenArr(deg)
-        while (gameBoardContainer.firstChild) {
-            gameBoardContainer.removeChild(gameBoardContainer.firstChild)
-        }
+        clearGameBoard()
         gameBoardContainer.style.transform = "rotate(0deg)"
         drawGameBoard()
-    }, 5000)
+        checkBeneath()
+    // }, 3000)
 }
