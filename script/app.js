@@ -10,17 +10,21 @@ let isOrientationNormal = true
 const columns = () => isOrientationNormal?7:6
 const rows = () => isOrientationNormal?6:7
 
+let player1Score = 0
+let player2Score = 0
+
 let currentTokensOnBoard = []
 const color1 = '#ffff00'
 const color2 = '#ff0000'
 const firstPlayer = {
-    name: null,
+    name: 'player1',
     color: color1,
 }
 const secondPlayer = {
-    name: null,
+    name: 'player2',
     color: color2,
 }
+
 let turnCount = 0
 
 // these are used for checking scoring playfields:
@@ -42,6 +46,24 @@ const scoringPositionsRotated = [
     {row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},
     {row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false}
 ]
+
+const score = () => {
+    let scoring = false    
+    for (let i =0; i < 41; i++){
+        if (currentTokensOnBoard[i].remove === true) {
+            currentTokensOnBoard[i].controlledBy.name === 'player1'?player1Score+=25:player2Score+=25
+            // name += 25
+            currentTokensOnBoard[i] = {isOccupied: false, controlledBy: null, spacesBeneath: 0, remove: false}
+            scoring = true
+        }
+    }
+    if (scoring === true) {
+        clearGameBoard()
+        drawGameBoard()
+        console.log('Player 1 score: ', player1Score,'\nPlayer 2 score: ',player2Score)
+        checkBeneath()
+    } else {return}
+}
 
 const detectScore = () => {
     const checkArr = isOrientationNormal?scoringPositionsStandard:scoringPositionsRotated
@@ -113,6 +135,7 @@ const detectScore = () => {
         }
     }
     console.log(`Token placement after detectScore:\n`,currentTokensOnBoard)
+    score()
 }
 
 const createTokenArr = (arr) => {
@@ -156,6 +179,7 @@ const addToken = (e) => {
             currentTokensOnBoard[squareToCheck].isOccupied = true
             currentTokensOnBoard[squareToCheck].controlledBy = currentPlayer
             document.getElementById('space'+squareToCheck).style.backgroundColor = currentPlayer.color
+            detectScore()
             turnCount++
             return
         } else {
@@ -244,6 +268,7 @@ const fillBeneath = () => {
     }
     // console.log(`this is after fillBeneath:\n`,currentTokensOnBoard)
     drawGameBoard()
+    detectScore()
 }
 
 const checkBeneath = () => {
