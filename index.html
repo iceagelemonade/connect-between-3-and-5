@@ -11,31 +11,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="popup">
-        Who will go first?
-        <div class="pick-color">
-            <div>
-            Player 1:<br />
-            <img src="coin-flip-red-yellow/0.png" alt="yellow token" width="60%" id="yellow" data-color="color1">
-            </div>
-            <img src="coin-flip-red-yellow/0.png" alt="yellow token" width="40%" id="coin" data-color="color1">
-            <div>
-            Player 2:<br />
-            <img src="coin-flip-red-yellow/180.png" alt="yellow token" width="60%"  id="red" data-color="color2">
-            </div>
-        </div>
-    </div>
-    <div class="playfield-mask"></div>
     <div class="main-container">
         <div class="title">Connect Between 3 & 4</div>
         <div id="logo-left"><img src="coin-flip-red-yellow/0.png" alt="yellow token" width="100%" height="100%" id="logo-left-coin"></div>
         <div id="logo-right"><img src="coin-flip-red-yellow/180.png" alt="red token" width="100%" height="100%" id="logo-right-coin"></div> 
             <div class="standard" id="gameboard-container">
                
-                <button type="button" id="start-button"onclick="startGame()">Start Game</button>
+                <button type="button" id="start-button"onclick="pickColor()">Start Game</button>
             </div>
     </div> 
-    <button type="button" onclick="rotate('ccw')">Counter-Clockwise</button><button type="button" onclick="rotate('cw')">Clockwise</button><button type="button" onclick="detectScore()">Detect Score</button>   
+    <!-- <button type="button" onclick="rotate('ccw')">Counter-Clockwise</button><button type="button" onclick="rotate('cw')">Clockwise</button><button type="button" onclick="detectScore()">Detect Score</button>    -->
 <script src="script/app.js"></script>
 </body>
 </html>

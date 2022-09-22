@@ -5,11 +5,16 @@
 //     document.querySelector('.gameboard-container').style.transform="rotate("+degreesToRotate+"deg)"
     
 // }
+const body = document.querySelector('body')
 const mainContainer = document.querySelector('.main-container')
 const gameBoardContainer = document.querySelector('#gameboard-container')
 let isOrientationNormal = true
 const columns = () => isOrientationNormal?7:6
 const rows = () => isOrientationNormal?6:7
+
+const winningScore = 100
+
+const colors = {color1: '#ffff00', color2: '#ff0000'}
 
 let player1ColorChoice = null
 let player2ColorChoice = null
@@ -17,19 +22,21 @@ let player2ColorChoice = null
 let player1Score = 0
 let player2Score = 0
 
+let turnCount = 0
+
+let roundsToRotate = 3
 let currentTokensOnBoard = []
-const color1 = '#ffff00'
-const color2 = '#ff0000'
+
 const firstPlayer = {
-    name: 'player1',
-    color: color1,
+    name: null,
+    color: null,
 }
 const secondPlayer = {
-    name: 'player2',
-    color: color2,
+    name: null,
+    color: null,
 }
 
-let turnCount = 0
+
 
 const imageArr = [0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350]
 
@@ -53,15 +60,37 @@ const scoringPositionsRotated = [
     {row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false}
 ]
 
-const detectWin = () => {
-    if (player1Score >= 1000 || player2Score >= 1000) {
+const drawWin = () => {
+    let mask = document.createElement('div')
+    mask.classList.add('playfield-mask')
+    body.appendChild(mask)
+    let winPopUp = document.createElement('div')
+    winPopUp.classList.add('popup')
+    const winner = () => {
         if (player1Score > player2Score) {
-            console.log('Player 1 wins')
+            return 'Player 1 Wins!'
         } else if (player2Score > player1Score) {
-            console.log('Player 2 wins')
+            return 'Player 2 Wins!'
         } else {
-            console.log(`It's a tie!`)
+            return `It's a tie!`
         }
+    }
+    winPopUp.innerHTML = '<div>'+winner()+ '</div><div>Play Again?</div><button type="button" id="start-button"onclick="resetGame()">Start Game</button>'
+    body.appendChild(winPopUp)
+}
+
+const detectWin = () => {
+    if (player1Score >= winningScore || player2Score >= winningScore) {
+        drawWin()
+        
+        
+        // if (player1Score > player2Score) {
+        //     console.log('Player 1 wins')
+        // } else if (player2Score > player1Score) {
+        //     console.log('Player 2 wins')
+        // } else {
+        //     console.log(`It's a tie!`)
+        // }
     }
 }
 
@@ -69,7 +98,7 @@ const score = () => {
     let scoring = false    
     for (let i =0; i < 42; i++){
         if (currentTokensOnBoard[i].remove === true) {
-            currentTokensOnBoard[i].controlledBy.name === 'player1'?player1Score+=25:player2Score+=25
+            currentTokensOnBoard[i].controlledBy.name === 'Player 1'?player1Score+=25:player2Score+=25
             // name += 25
             currentTokensOnBoard[i] = {isOccupied: false, controlledBy: null, spacesBeneath: 0, remove: false}
             scoring = true
@@ -172,21 +201,34 @@ const clearGameBoard =() => {
 }
 
 const startGame = () => {
-    document.getElementById('start-button').remove()
+    if (document.getElementById('start-button') != null) {
+        document.getElementById('start-button').remove()
+    }
     createTokenArr(currentTokensOnBoard)
     drawGameBoard()
     let scoreboard1 = document.createElement('div')
     let scoreboard2 = document.createElement('div')
     scoreboard1.classList.add('scoreboard')
     scoreboard2.classList.add('scoreboard')
-    scoreboard1.setAttribute('id', 'player1')
-    scoreboard2.setAttribute('id', 'player2')
+    scoreboard1.setAttribute('id', 'player-1')
+    scoreboard2.setAttribute('id', 'player-2')
     scoreboard1.innerHTML = 'PLAYER<br />1<br />Score:<br /><span id="player1-score">0</span>'
     scoreboard2.innerHTML = 'PLAYER<br />2<br />Score:<br /><span id="player2-score">0</span>'
     mainContainer.appendChild(scoreboard1)
     mainContainer.appendChild(scoreboard2)
+    let turnTracker = document.createElement('div')
+    let roundTracker = document.createElement('div')
+    turnTracker.classList.add('scoreboard')
+    roundTracker.classList.add('scoreboard')
+    turnTracker.setAttribute('id', 'turn-tracker')
+    roundTracker.setAttribute('id', 'round-tracker')
+    turnTracker.innerHTML = 'Current Player:<br /><span id="current-turn"></span>'
+    roundTracker.innerHTML = 'Rounds until Rotate:<br /><span id="round-to-turn">3</span>'
+    mainContainer.appendChild(roundTracker)
+    mainContainer.appendChild(turnTracker)
     console.log('Current Token Placement is:/n', currentTokensOnBoard)
     turnCount = 1
+    writeCurrentPlayer()
 }
 
 // Select a place to add token
@@ -210,7 +252,9 @@ const addToken = (e) => {
             currentTokensOnBoard[squareToCheck].controlledBy = currentPlayer
             document.getElementById('space'+squareToCheck).style.backgroundColor = currentPlayer.color
             detectScore()
+            turnHandler()
             turnCount++
+            writeCurrentPlayer()
             return
         } else {
             squareToCheck -= toSubtract
@@ -334,30 +378,7 @@ const refreshTokenArr = (deg) => {
     // console.log('this is the new arr:\n',currentTokensOnBoard)    
 }
 
-// const refreshTokenArr = (deg) => {
-//     let newArr = []
-//     createTokenArr(newArr)
-//     let start = deg===90?-1:42
-//     let col = isOrientationNormal?6:7
-//     let move = deg===90?col*-1:col
-//     let prev = start
-//     console.log('some values and stuff',start,col,move,prev)
-//     for (i = 0; i < 43; i = i + col) {
-        
-//         for (c = 0; c < col; c++){
-//             console.log(i+c)
-//             console.log(currentTokensOnBoard[i+c])
-//             newArr[prev + move] = currentTokensOnBoard[i + c]
-//             prev += move
-//         }
 
-//         prev = (deg===90)?start-= 1:start+= 1
-//         // (deg===-90)?start+= 1:start=start
-//     }
-//     console.log('this is the old arr:\n',currentTokensOnBoard)
-//     currentTokensOnBoard = newArr
-//     console.log('this is the new arr:\n',currentTokensOnBoard)
-// }
 
 const rotate = (direction) => {
     const deg = direction === 'cw'?90:-90
@@ -373,25 +394,98 @@ const rotate = (direction) => {
         checkBeneath()
     // }, 3000)
 }
+///////////////////////////////////////////////////////////////
+// turn handler
+const writeRounds = () => {
+    const rounds = document.getElementById('round-to-turn')
+    rounds.innerText = roundsToRotate
+}
+const writeCurrentPlayer = () => {
+    let curPlayer = turnCount%2 === 0?secondPlayer:firstPlayer
+    document.getElementById('current-turn').innerText = curPlayer.name
+    document.getElementById('current-turn').style.color = curPlayer.color 
+}
+
+const rotateHandler = () => {
+    let direction = Math.floor(Math.random()*2)===1?'cw':'ccw'
+    console.log('rotating ',direction)
+    // rotate(direction)
+    let mask = document.createElement('div')
+    mask.classList.add('playfield-mask')
+    body.appendChild(mask)
+    let rotatePopUp = document.createElement('div')
+    rotatePopUp.classList.add('popup')
+    rotatePopUp.innerHTML = `Board is Rotating!<span id="rotation-direction">But What Direction?</span>`
+    body.appendChild(rotatePopUp)
+
+    let dir = document.getElementById('rotation-direction')
+    let textToggle = false
+    setTimeout(()=>{
+        let rotationDisplayInterval = setInterval(()=>{
+           textToggle === true?dir.innerText = "COUNTER-CLOCKWISE":dir.innerText = "CLOCKWISE"
+           textToggle = !textToggle
+        }, 100)
+        setTimeout(()=>{
+            clearInterval(rotationDisplayInterval)
+            direction === 'cw'?dir.innerText = "CLOCKWISE":dir.innerText = "COUNTER-CLOCKWISE"
+        },4000)
+    },1000)
+    
+
+    setTimeout(()=>{
+        document.querySelector('.popup').remove()
+        document.querySelector('.playfield-mask').remove()
+        rotate(direction)        
+    },6000)
+       
+    roundsToRotate = 3
+    writeRounds()
+}
+
+const turnHandler = () => {
+    if (turnCount%2 === 0) {
+        roundsToRotate--
+    }
+    if (roundsToRotate === 0) {
+        rotateHandler()
+    } else {
+        writeRounds()
+    }
+}
+
+
+
+
 
 //////////////////////////////////////////////
 // whose first?
 
+const displayFirstPlayer = () => {
+    let display = document.createElement('div')
+    display.classList.add('popup')
+    display.classList.add('popup-overlay')
+    display.innerText = firstPlayer.name + ' Goes First'
+    document.querySelector('.popup').appendChild(display)
+    setTimeout(()=>{
+        document.querySelector('.popup').remove()
+        document.querySelector('.playfield-mask').remove()
+        startGame()
+    } ,1000)
+}
 
-// const result = document.getElementById('result')
-const image = document.getElementById('coin')
-let i = 0
+
+let imageValue = 0
 
 const getImage = () => {
-    i === 35? i = 0: i = i
-    const toLoad = imageArr[i]
+    const image = document.getElementById('coin')
+    imageValue === 35? imageValue = 0: imageValue = imageValue
+    const toLoad = imageArr[imageValue]
     image.src='./coin-flip-red-yellow/'+toLoad+'.png'
-    i++
+    imageValue++
 }
 let timer = null
-const pickPlayerAnimation = () => {
-    // result.innerText=""
-    i = 0
+const pickFirstPlayerAnimation = () => {
+    imageValue = 0
     let endTime = Math.floor(Math.random() * 2) === 1?1750: 2280
     console.log(endTime)
     let timerFast = setInterval(getImage, 10)
@@ -409,15 +503,86 @@ const pickPlayerAnimation = () => {
         },2210)
 
     },2880)
-    let displayWinner = setTimeout(() => {
-        console.log('display winner')
-        // endTime === 1750?result.innerText = "Yellow Goes First!": result.innerText = "Red Goes First!"
-    }, 5390 + endTime)
+    if (endTime === 1750) {
+        firstPlayer.color = colors.color1
+        secondPlayer.color = colors.color2
+    } else {
+        firstPlayer.color = colors.color2
+        secondPlayer.color = colors.color1 
+    }
+    if (player1ColorChoice === firstPlayer.color) {
+        firstPlayer.name = 'Player 1'
+        secondPlayer.name = 'Player 2'
+    } else {
+        firstPlayer.name = 'Player 2'
+        secondPlayer.name = 'Player 1'
+    }  
+    let displayWinner = setTimeout(displayFirstPlayer, 5390 + endTime)
 }
 
 
+const assignColor = (event) => {
+    player1ColorChoice = colors[event.srcElement.getAttribute('data-color')]
+    player2ColorChoice = player1ColorChoice === colors.color1?colors.color2:colors.color1
+    console.log(`Player 1 :`,player1ColorChoice,`\nPlayer 2 :`,player2ColorChoice)
+    let leftImage = null
+    let rightImage = null
+    if (player1ColorChoice === colors.color1){
+        leftImage = '<img src="coin-flip-red-yellow/0.png" alt="yellow token" width="60%" id="yellow" data-color="color1">'
+        rightImage = '<img src="coin-flip-red-yellow/180.png" alt="yellow token" width="60%"  id="red" data-color="color2">'
+    } else {
+        rightImage = '<img src="coin-flip-red-yellow/0.png" alt="yellow token" width="60%" id="yellow" data-color="color1">'
+        leftImage = '<img src="coin-flip-red-yellow/180.png" alt="yellow token" width="60%"  id="red" data-color="color2">'
+    }
+    document.querySelector('.popup').innerHTML=`Who will go first?
+    <div class="pick-color">
+        <div>
+        Player 1:<br />`+leftImage+
+        
+        `</div>
+        <img src="coin-flip-red-yellow/0.png" alt="yellow token" width="40%" id="coin" data-color="color1">
+        <div>
+        Player 2:<br />`+rightImage+
+        
+        `</div>
+    </div>`
+    setTimeout(pickFirstPlayerAnimation, 500)
+}
+
+const pickColor = () => {
+    let mask = document.createElement('div')
+    mask.classList.add('playfield-mask')
+    body.appendChild(mask)
+    let selectColorPopUp = document.createElement('div')
+    selectColorPopUp.classList.add('popup')
+    selectColorPopUp.innerHTML="Player 1<br />Choose Your Color:"
+    let selectColor = document.createElement('div')
+    selectColor.classList.add('pick-color')
+    selectColor.innerHTML=`<img src="coin-flip-red-yellow/0.png" alt="yellow token" width="30%" id="yellow" data-color="color1">
+    <img src="coin-flip-red-yellow/180.png" alt="yellow token" width="30%"  id="red" data-color="color2">`
+    selectColorPopUp.appendChild(selectColor)
+    body.appendChild(selectColorPopUp)
+    document.querySelector('#yellow').addEventListener('click', assignColor)
+    document.querySelector('#red').addEventListener('click', assignColor)
+}
+
+const resetGame = () => {
+    player1Score = 0
+    player2Score = 0
+    turnCount = 0
+    currentTokensOnBoard = []
+    let scoreboards = document.querySelectorAll('.scoreboard')
+    for (let i = 0; i < scoreboards.length; i++) {
+        scoreboards[i].remove()
+    }
+    document.querySelector('.popup').remove()
+    document.querySelector('.playfield-mask').remove()
+    clearGameBoard()
+    isOrientationNormal = true
+    pickColor()
 
 
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
