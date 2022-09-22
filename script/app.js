@@ -22,7 +22,7 @@ let player2ColorChoice = null
 let player1Score = 0
 let player2Score = 0
 
-let turnCount = 0
+let turnCount = 1
 
 let roundsToRotate = 3
 let currentTokensOnBoard = []
@@ -255,24 +255,25 @@ const addToken = (e) => {
             turnHandler()
             turnCount++
             writeCurrentPlayer()
+            startTurn()
             return
         } else {
             squareToCheck -= toSubtract
         }
         
     }
-    
+    const divsToClear = document.querySelectorAll('.selector')
+        while (divsToClear.length > 0) {
+            document.remove(divsToClear)
+            console.log('removed')
+        }
     // console.log(`the bottom of the column is:\n`,squareToCheck,`and we will subtract:\n`,toSubtract)
 }
 
 
 // when a turn starts, before location is selected
 const startTurn = () => {
-    // const divsToClear = document.querySelectorAll('.selector')
-    // while (divsToClear.length > 0) {
-    //     document.remove(divsToClear)
-    //     console.log('removed')
-    // }
+    
     const start = isOrientationNormal?2:3
     const row = isOrientationNormal?'2 / 9':'1 / 9'
     let id = 0
@@ -283,6 +284,12 @@ const startTurn = () => {
         selector.style.zIndex = 3
         selector.style.gridColumn = i
         selector.style.gridRow = row
+
+        const indicator = document.createElement('div')
+        indicator.classList.add('indicator')
+        indicator.style.backgroundColor = turnCount%2===0?secondPlayer.color:firstPlayer.color
+        selector.appendChild(indicator)
+
         selector.addEventListener('click', addToken)
         gameBoardContainer.appendChild(selector)
         id++
