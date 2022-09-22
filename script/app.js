@@ -273,7 +273,7 @@ const addToken = (e) => {
 
 // when a turn starts, before location is selected
 const startTurn = () => {
-    
+    const color = turnCount%2===0?secondPlayer.color:firstPlayer.color
     const start = isOrientationNormal?2:3
     const row = isOrientationNormal?'2 / 9':'1 / 9'
     let id = 0
@@ -287,7 +287,7 @@ const startTurn = () => {
 
         const indicator = document.createElement('div')
         indicator.classList.add('indicator')
-        indicator.style.backgroundColor = turnCount%2===0?secondPlayer.color:firstPlayer.color
+        indicator.style.backgroundColor = color
         selector.appendChild(indicator)
 
         selector.addEventListener('click', addToken)
@@ -442,21 +442,21 @@ const rotateHandler = () => {
     setTimeout(()=>{
         document.querySelector('.popup').remove()
         document.querySelector('.playfield-mask').remove()
-        rotate(direction)        
+        rotate(direction)
+        roundsToRotate = 3
+        writeRounds()        
     },6000)
        
-    roundsToRotate = 3
-    writeRounds()
+    
 }
 
 const turnHandler = () => {
     if (turnCount%2 === 0) {
         roundsToRotate--
     }
+    writeRounds()
     if (roundsToRotate === 0) {
         rotateHandler()
-    } else {
-        writeRounds()
     }
 }
 
@@ -576,7 +576,8 @@ const pickColor = () => {
 const resetGame = () => {
     player1Score = 0
     player2Score = 0
-    turnCount = 0
+    turnCount = 1
+    roundsToRotate = 3
     currentTokensOnBoard = []
     let scoreboards = document.querySelectorAll('.scoreboard')
     for (let i = 0; i < scoreboards.length; i++) {
