@@ -27,6 +27,8 @@ let player2Score = 0
 
 let turnCount = 1
 
+currentlyScoring = false
+
 let roundsToRotate = 3
 let currentTokensOnBoard = []
 
@@ -99,6 +101,18 @@ const detectWin = () => {
 
 
 const score = () => {
+    if ((turnCount-1)%2 === 0) {
+        roundsToRotate--
+    }
+    
+    if (roundsToRotate === 0) {
+        rotateHandler()   
+    } 
+    // else {
+    //     writeCurrentPlayer()
+    // }
+    // startTurn()
+    currentlyScoring = false
     let scoring = false    
     for (let i =0; i < 42; i++){
         if (currentTokensOnBoard[i].remove === true) {
@@ -116,11 +130,16 @@ const score = () => {
         console.log('Player 1 score: ', player1Score,'\nPlayer 2 score: ',player2Score)
         checkBeneath()
         detectWin()
-    } else {return}
+        
+    } else {
+        
+        return
+    }
 }
 
 const detectScore = () => {
     const checkArr = isOrientationNormal?scoringPositionsStandard:scoringPositionsRotated
+    let scoreDetected = false
     for (i = 0; i < 42; i++) {
         // first, check is position is occupied
         if (currentTokensOnBoard[i].isOccupied === true) {
@@ -139,6 +158,7 @@ const detectScore = () => {
                     currentTokensOnBoard[i+1].remove = true
                     currentTokensOnBoard[i+2].remove = true
                     currentTokensOnBoard[i+3].remove = true
+                    scoreDetected = true
                 } 
             }
             // check column
@@ -154,6 +174,7 @@ const detectScore = () => {
                     currentTokensOnBoard[i+columns()].remove = true
                     currentTokensOnBoard[i+(columns()*2)].remove = true
                     currentTokensOnBoard[i+(columns()*3)].remove = true
+                    scoreDetected = true
                 }
             }
             // check Diaganol 1
@@ -169,6 +190,7 @@ const detectScore = () => {
                     currentTokensOnBoard[i+(columns()+1)].remove = true
                     currentTokensOnBoard[i+((columns()+1)*2)].remove = true
                     currentTokensOnBoard[i+((columns()+1)*3)].remove = true
+                    scoreDetected = true
                 }
             }
             // check Diaganol 2
@@ -184,12 +206,28 @@ const detectScore = () => {
                     currentTokensOnBoard[i+(columns()-1)].remove = true
                     currentTokensOnBoard[i+((columns()-1)*2)].remove = true
                     currentTokensOnBoard[i+((columns()-1)*3)].remove = true
+                    scoreDetected = true
                 }
             }
         }
     }
     console.log(`Token placement after detectScore:\n`,currentTokensOnBoard)
-    animationForScoreDetection()
+    if (scoreDetected === true) {
+        clearSelectors()
+        animationForScoreDetection()
+    } else {
+        checkBeneath()
+        if ((turnCount-1)%2 === 0) {
+            roundsToRotate--
+        }
+        
+        if (roundsToRotate === 0) {
+            rotateHandler()   
+        } 
+        // else {
+        //     writeCurrentPlayer()
+        // }
+    }
 }
 
 const createTokenArr = (arr) => {
@@ -233,6 +271,7 @@ const startGame = () => {
     console.log('Current Token Placement is:/n', currentTokensOnBoard)
     turnCount = 1
     writeCurrentPlayer()
+    
 }
 
 // Select a place to add token
@@ -255,22 +294,15 @@ const addToken = (e) => {
             currentTokensOnBoard[squareToCheck].isOccupied = true
             currentTokensOnBoard[squareToCheck].controlledBy = currentPlayer
             document.getElementById('space'+squareToCheck).style.backgroundColor = currentPlayer.color
-            detectScore()
+            clearSelectors()
             turnHandler()
-            turnCount++
-            writeCurrentPlayer()
-            startTurn()
             return
         } else {
             squareToCheck -= toSubtract
         }
         
     }
-    const divsToClear = document.querySelectorAll('.selector')
-        while (divsToClear.length > 0) {
-            document.remove(divsToClear)
-            console.log('removed')
-        }
+
     // console.log(`the bottom of the column is:\n`,squareToCheck,`and we will subtract:\n`,toSubtract)
 }
 
@@ -298,6 +330,7 @@ const startTurn = () => {
         gameBoardContainer.appendChild(selector)
         id++
     }
+    
 }
 
 // Below is the function that draws the gameboard after the game begins
@@ -335,6 +368,7 @@ const drawGameBoard = () => {
     }
     // remove after testing is done
     startTurn()
+    
     // testing shading
     // const shadow = document.createElement('div')
     // shadow.classList.add('shadow')
@@ -353,10 +387,11 @@ const fillBeneath = () => {
     }
     // console.log(`this is after fillBeneath:\n`,currentTokensOnBoard)
     drawGameBoard()
-    detectScore()
+    startTurn()
 }
 
 const checkBeneath = () => {
+    let dropDetected = false
     for (let i = 0; i < 42; i++) {
         if (currentTokensOnBoard[i].isOccupied === true) {
             for (let c = i + columns(); c < 42; c = c + columns()) {
@@ -364,11 +399,14 @@ const checkBeneath = () => {
                     // console.log(currentTokensOnBoard[i])
                     currentTokensOnBoard[i].spacesBeneath += 1
                     // console.log(currentTokensOnBoard[i], currentTokensOnBoard[i].spacesBeneath)
+                    dropDetected = true
                 }
             }
         }
     }
-    animationForCheckBeneath()
+    if (dropDetected === true) {
+            animationForCheckBeneath()
+    } else{startTurn()}
 }
 
 const refreshTokenArr = (deg) => {
@@ -418,6 +456,7 @@ const writeCurrentPlayer = () => {
 }
 
 const rotateHandler = () => {
+    clearSelectors()
     let direction = Math.floor(Math.random()*2)===1?'cw':'ccw'
     console.log('rotating ',direction)
     // rotate(direction)
@@ -439,7 +478,7 @@ const rotateHandler = () => {
         setTimeout(()=>{
             clearInterval(rotationDisplayInterval)
             direction === 'cw'?dir.innerText = "CLOCKWISE":dir.innerText = "COUNTER-CLOCKWISE"
-        },4000)
+        },2000)
     },1000)
     
 
@@ -449,20 +488,39 @@ const rotateHandler = () => {
         // rotate(direction)
         animationForRotation(direction)
         roundsToRotate = 3
-        writeRounds()        
-    },6000)
+               
+    },5000)
        
     
 }
 
+const clearSelectors = () => {
+    console.log('im clearing')
+    const divsToClear = document.querySelectorAll('.selector')
+    console.log(document.querySelectorAll('.selector'))
+    for (i = 0; i < divsToClear.length; i++){
+        document.querySelector('.selector').remove()
+        console.log('removed')
+    }
+}
+
 const turnHandler = () => {
-    if (turnCount%2 === 0) {
-        roundsToRotate--
-    }
+    // clearSelectors()
+    
+    turnCount++
+    detectScore()
     writeRounds()
-    if (roundsToRotate === 0) {
-        rotateHandler()
-    }
+    writeCurrentPlayer()
+    // writeCurrentPlayer()
+    // if (turnCount%2 === 0) {
+    //     roundsToRotate--
+    // }
+    
+    // if (roundsToRotate === 0) {
+    //     rotateHandler()   
+    // } else {
+    //     writeCurrentPlayer()
+    // }
 }
 
 //////////////////////////////////////////////
@@ -622,26 +680,28 @@ document.addEventListener('DOMContentLoaded', flipAnimation())
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // animation for score detection:
-const animationForScoreDetection = () => {    
+const animationForScoreDetection = () => {
+    clearSelectors()    
     let blink = setInterval(() => {
         for (let i = 0; i < 42; i++){
             if (currentTokensOnBoard[i].remove === true) {
                 let thisSpace = document.getElementById(`space${i}`)
                 let orginalColor = currentTokensOnBoard[i].controlledBy.color
-                console.log('og color: ',orginalColor)
-                console.log(`color: `,thisSpace.style.backgroundColor)
+                // console.log('og color: ',orginalColor)
+                // console.log(`color: `,thisSpace.style.backgroundColor)
                 if (thisSpace.style.backgroundColor != colors.color3) {
-                    console.log('tag')
+                    // console.log('tag')
                     thisSpace.style.backgroundColor = colors.color3
-                    console.log(`color: `,thisSpace.style.backgroundColor)
+                    // console.log(`color: `,thisSpace.style.backgroundColor)
                 } else {
-                    console.log('tag switch back')
+                    // console.log('tag switch back')
                     thisSpace.style.backgroundColor = orginalColor
                 }
             }
         }
     },300)
     setTimeout(() => {
+        scoring = false
         clearInterval(blink)
         score()
     },3000)
@@ -650,6 +710,7 @@ const animationForScoreDetection = () => {
 
 // animation for rotating the game board
 animationForRotation = (direction) => {
+    clearSelectors()
     let moveModifier = direction === 'cw'?1:-1
     let position = .5
     let frameInterval = 10
@@ -662,11 +723,13 @@ animationForRotation = (direction) => {
     setTimeout(() => {
         clearInterval(rotateAnimation)
         rotate(direction)
+        
     }, 2000)
 }
 
 // animation for moving pieces after check beneath
 const animationForCheckBeneath = () => {
+    clearSelectors()
     const frameInterval = 60
     let maxSpacesBeneath = 0
     let moving = []
