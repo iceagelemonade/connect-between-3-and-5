@@ -2,6 +2,7 @@ body {
     background-color: #59545c;
     padding: 0px;
     margin: 0;
+    overflow: hidden;
 }
 
 .main-container {
@@ -71,6 +72,8 @@ body {
 }    
 
 .gameboard-space {
+    position: relative;
+    top: 0px;
     z-index: 0;
     border: 1px solid black;
     border-radius: 50%;
@@ -133,7 +136,7 @@ body {
 #start-button {
     grid-column: 4 / 7;
     grid-row: 5;
-    background-color: #59545c;
+    background-color: inherit;
     border: 1vh dashed #83f0fc;
     border-style: dashed hidden;
     color: #83f0fc;

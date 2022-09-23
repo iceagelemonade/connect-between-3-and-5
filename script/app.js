@@ -12,9 +12,12 @@ let isOrientationNormal = true
 const columns = () => isOrientationNormal?7:6
 const rows = () => isOrientationNormal?6:7
 
-const winningScore = 100
+const winningScore = 200
 
-const colors = {color1: '#ffff00', color2: '#ff0000'}
+const colors = {color1: 'rgb(255, 255, 0)', color2: 'rgb(255, 0, 0)', color3: 'rgb(255, 255, 255)'}
+
+// const blankToken = {isOccupied: false, controlledBy: null, spacesBeneath: 0, remove: false}
+// when I use the above each time I push a blank object the game crashes...
 
 let player1ColorChoice = null
 let player2ColorChoice = null
@@ -93,6 +96,7 @@ const detectWin = () => {
         // }
     }
 }
+
 
 const score = () => {
     let scoring = false    
@@ -185,7 +189,7 @@ const detectScore = () => {
         }
     }
     console.log(`Token placement after detectScore:\n`,currentTokensOnBoard)
-    score()
+    animationForScoreDetection()
 }
 
 const createTokenArr = (arr) => {
@@ -364,7 +368,7 @@ const checkBeneath = () => {
             }
         }
     }
-    fillBeneath()
+    animationForCheckBeneath()
 }
 
 const refreshTokenArr = (deg) => {
@@ -389,8 +393,8 @@ const refreshTokenArr = (deg) => {
 
 const rotate = (direction) => {
     const deg = direction === 'cw'?90:-90
-    // console.log('this is deg: ',deg)
-    gameBoardContainer.style.transform = "rotate("+deg+"deg)"
+    // // console.log('this is deg: ',deg)
+    // gameBoardContainer.style.transform = "rotate("+deg+"deg)"
     isOrientationNormal = !isOrientationNormal
     // setTimeout(()=>{
         // console.log('redrawing now')
@@ -442,7 +446,8 @@ const rotateHandler = () => {
     setTimeout(()=>{
         document.querySelector('.popup').remove()
         document.querySelector('.playfield-mask').remove()
-        rotate(direction)
+        // rotate(direction)
+        animationForRotation(direction)
         roundsToRotate = 3
         writeRounds()        
     },6000)
@@ -459,10 +464,6 @@ const turnHandler = () => {
         rotateHandler()
     }
 }
-
-
-
-
 
 //////////////////////////////////////////////
 // whose first?
@@ -620,3 +621,79 @@ const flipAnimation = () => {
 document.addEventListener('DOMContentLoaded', flipAnimation())
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// animation for score detection:
+const animationForScoreDetection = () => {    
+    let blink = setInterval(() => {
+        for (let i = 0; i < 42; i++){
+            if (currentTokensOnBoard[i].remove === true) {
+                let thisSpace = document.getElementById(`space${i}`)
+                let orginalColor = currentTokensOnBoard[i].controlledBy.color
+                console.log('og color: ',orginalColor)
+                console.log(`color: `,thisSpace.style.backgroundColor)
+                if (thisSpace.style.backgroundColor != colors.color3) {
+                    console.log('tag')
+                    thisSpace.style.backgroundColor = colors.color3
+                    console.log(`color: `,thisSpace.style.backgroundColor)
+                } else {
+                    console.log('tag switch back')
+                    thisSpace.style.backgroundColor = orginalColor
+                }
+            }
+        }
+    },300)
+    setTimeout(() => {
+        clearInterval(blink)
+        score()
+    },3000)
+}
+
+
+// animation for rotating the game board
+animationForRotation = (direction) => {
+    let moveModifier = direction === 'cw'?1:-1
+    let position = .5
+    let frameInterval = 10
+    let rotateAnimation = setInterval(() => {
+        if (position <= 90) {
+            gameBoardContainer.style.transform = "rotate("+position * moveModifier+"deg)"
+            position += .5
+        }  
+    },frameInterval)
+    setTimeout(() => {
+        clearInterval(rotateAnimation)
+        rotate(direction)
+    }, 2000)
+}
+
+// animation for moving pieces after check beneath
+const animationForCheckBeneath = () => {
+    const frameInterval = 60
+    let maxSpacesBeneath = 0
+    let moving = []
+    for (let i = 0; i < 42; i++){
+        if (currentTokensOnBoard[i].spacesBeneath > 0) {
+            let thisId = `space${i}`
+            console.log(thisId)
+            let thisMaxMove = currentTokensOnBoard[i].spacesBeneath
+            moving.push({id: thisId, move: 1, maxMove: thisMaxMove})
+            if(currentTokensOnBoard[i].spacesBeneath > maxSpacesBeneath) {
+                maxSpacesBeneath = currentTokensOnBoard[i].spacesBeneath
+            }
+        }
+    }    
+    setInterval(() => {
+        for (let t = 0; t < moving.length; t++) {
+            let thisSpace = document.getElementById(moving[t].id)
+            if (moving[t].move < 9 * moving[t].maxMove)  {
+                thisSpace.style.top = moving[t].move + 'vh'
+                moving[t].move++
+            }
+        }
+    },frameInterval)
+    setTimeout(fillBeneath,((maxSpacesBeneath * (frameInterval * 10)) + 500))   
+}
+
+
+
+
+// animation for selecting a place to drop
