@@ -1,10 +1,4 @@
-// this was to test layout
-// let degreesToRotate = 0
-// const rotate = (degrees) => {
-//     degreesToRotate += degrees
-//     document.querySelector('.gameboard-container').style.transform="rotate("+degreesToRotate+"deg)"
-    
-// }
+
 const body = document.querySelector('body')
 const mainContainer = document.querySelector('.main-container')
 const gameBoardContainer = document.querySelector('#gameboard-container')
@@ -12,7 +6,7 @@ let isOrientationNormal = true
 const columns = () => isOrientationNormal?7:6
 const rows = () => isOrientationNormal?6:7
 
-const winningScore = 200
+let winningScore = 100
 
 const colors = {color1: 'rgb(255, 255, 0)', color2: 'rgb(255, 0, 0)', color3: 'rgb(255, 255, 255)'}
 
@@ -26,8 +20,9 @@ let player1Score = 0
 let player2Score = 0
 
 let turnCount = 1
-
-currentlyScoring = false
+let turnHandlerPosition = 6
+// currentlyScoring = false
+let boardFull = false
 
 let roundsToRotate = 3
 let currentTokensOnBoard = []
@@ -80,39 +75,27 @@ const drawWin = () => {
             return `It's a tie!`
         }
     }
-    winPopUp.innerHTML = '<div>'+winner()+ '</div><div>Play Again?</div><button type="button" id="start-button"onclick="resetGame()">Start Game</button>'
+    winPopUp.innerHTML = '<div>'+winner()+ '</div><button type="button" id="restart-button"onclick="resetGame()">Play Again?</button>'
     body.appendChild(winPopUp)
 }
 
 const detectWin = () => {
-    if (player1Score >= winningScore || player2Score >= winningScore) {
+    if (player1Score >= winningScore || player2Score >= winningScore || boardFull === true) {
         drawWin()
-        
-        
-        // if (player1Score > player2Score) {
-        //     console.log('Player 1 wins')
-        // } else if (player2Score > player1Score) {
-        //     console.log('Player 2 wins')
-        // } else {
-        //     console.log(`It's a tie!`)
-        // }
+    } else {
+        turnHandlerPosition = 5
+        turnHandler()
     }
 }
 
 
 const score = () => {
-    if ((turnCount-1)%2 === 0) {
-        roundsToRotate--
-    }
     
-    if (roundsToRotate === 0) {
-        rotateHandler()   
-    } 
     // else {
     //     writeCurrentPlayer()
     // }
     // startTurn()
-    currentlyScoring = false
+    // currentlyScoring = false
     let scoring = false    
     for (let i =0; i < 42; i++){
         if (currentTokensOnBoard[i].remove === true) {
@@ -127,14 +110,17 @@ const score = () => {
         drawGameBoard()
         document.querySelector('#player1-score').innerText = player1Score
         document.querySelector('#player2-score').innerText = player2Score
-        console.log('Player 1 score: ', player1Score,'\nPlayer 2 score: ',player2Score)
-        checkBeneath()
-        detectWin()
-        
-    } else {
-        
-        return
-    }
+        // console.log('Player 1 score: ', player1Score,'\nPlayer 2 score: ',player2Score)
+        // checkBeneath()
+        // detectWin()
+        turnHandlerPosition = 2
+        turnHandler()
+    } 
+    // else {
+    //     turnHandlerPosition = 5
+    //     turnHandler()
+    //     return
+    // }
 }
 
 const detectScore = () => {
@@ -149,11 +135,11 @@ const detectScore = () => {
                 for (r = i+1; r < i+4; r++) {
                     if (currentTokensOnBoard[r].controlledBy === currentTokensOnBoard[i].controlledBy && currentTokensOnBoard[r].isOccupied === true) {
                         rowCheck++
-                        console.log(`row check 1`)
+                        // console.log(`row check 1`)
                     }
                 }
                 if (rowCheck === 4) {
-                    console.log(`row check 2`)
+                    // console.log(`row check 2`)
                     currentTokensOnBoard[i].remove = true
                     currentTokensOnBoard[i+1].remove = true
                     currentTokensOnBoard[i+2].remove = true
@@ -211,22 +197,24 @@ const detectScore = () => {
             }
         }
     }
-    console.log(`Token placement after detectScore:\n`,currentTokensOnBoard)
+    // console.log(`Token placement after detectScore:\n`,currentTokensOnBoard)
     if (scoreDetected === true) {
-        clearSelectors()
+        // clearSelectors()
         animationForScoreDetection()
     } else {
-        checkBeneath()
-        if ((turnCount-1)%2 === 0) {
-            roundsToRotate--
-        }
+    //     checkBeneath()
+    //     if ((turnCount-1)%2 === 0) {
+    //         roundsToRotate--
+    //     }
         
-        if (roundsToRotate === 0) {
-            rotateHandler()   
-        } 
-        // else {
-        //     writeCurrentPlayer()
-        // }
+    //     if (roundsToRotate === 0) {
+    //         rotateHandler()   
+    //     } 
+    //     // else {
+    //     //     writeCurrentPlayer()
+    //     // }
+    turnHandlerPosition = 5
+    turnHandler()
     }
 }
 
@@ -242,10 +230,18 @@ const clearGameBoard =() => {
     }
 }
 
+const detectBoardFull = () => {
+    let count = 0
+    currentTokensOnBoard.forEach((element)=>{
+        if (element.isOccupied === true) {
+            count ++
+        } 
+    })
+    return count
+}
+
 const startGame = () => {
-    if (document.getElementById('start-button') != null) {
-        document.getElementById('start-button').remove()
-    }
+    
     createTokenArr(currentTokensOnBoard)
     drawGameBoard()
     let scoreboard1 = document.createElement('div')
@@ -268,9 +264,15 @@ const startGame = () => {
     roundTracker.innerHTML = 'Rounds until Rotate:<br /><span id="round-to-turn">3</span>'
     mainContainer.appendChild(roundTracker)
     mainContainer.appendChild(turnTracker)
-    console.log('Current Token Placement is:/n', currentTokensOnBoard)
-    turnCount = 1
+    // console.log('Current Token Placement is:/n', currentTokensOnBoard)
+    let rules = document.createElement('button')
+    rules.setAttribute('id', 'rules-button')
+    rules.type = 'button'
+    rules.innerText = 'RULES'
+    mainContainer.appendChild(rules)
+    turnCount = 0
     writeCurrentPlayer()
+    turnHandler()
     
 }
 
@@ -288,14 +290,18 @@ const addToken = (e) => {
     let maxCheck = isOrientationNormal?6:7
 
     let currentPlayer = turnCount%2===0?secondPlayer:firstPlayer
-
+    console.log(id)
     for (let i = 0; i < maxCheck; i++) {
          if (!currentTokensOnBoard[squareToCheck].isOccupied) {
             currentTokensOnBoard[squareToCheck].isOccupied = true
             currentTokensOnBoard[squareToCheck].controlledBy = currentPlayer
-            document.getElementById('space'+squareToCheck).style.backgroundColor = currentPlayer.color
+            // document.getElementById('space'+squareToCheck).style.backgroundColor = currentPlayer.color
+            document.getElementById(id).setAttribute('class', 'selected')
+            document.querySelector('.selected').style.zIndex = '-10'
             clearSelectors()
-            turnHandler()
+            animateTokenPlacement(maxCheck - i)
+            // turnHandlerPosition = 1
+            // turnHandler()
             return
         } else {
             squareToCheck -= toSubtract
@@ -309,6 +315,19 @@ const addToken = (e) => {
 
 // when a turn starts, before location is selected
 const startTurn = () => {
+    if (detectBoardFull() === 42) {
+        boardFull = true
+        detectWin()
+    }
+    // console.log(detectBoardFull())
+    turnCount++
+    writeRounds()
+    if ((turnCount)%2 === 0) {
+        roundsToRotate--
+    }
+    
+    
+    writeCurrentPlayer()
     const color = turnCount%2===0?secondPlayer.color:firstPlayer.color
     const start = isOrientationNormal?2:3
     const row = isOrientationNormal?'2 / 9':'1 / 9'
@@ -317,7 +336,7 @@ const startTurn = () => {
         const selector = document.createElement('div')
         selector.classList.add('selector')
         selector.setAttribute('id', 'selector' + id)
-        selector.style.zIndex = 3
+        selector.style.zIndex = 20
         selector.style.gridColumn = i
         selector.style.gridRow = row
 
@@ -367,7 +386,7 @@ const drawGameBoard = () => {
         col++
     }
     // remove after testing is done
-    startTurn()
+    // startTurn()
     
     // testing shading
     // const shadow = document.createElement('div')
@@ -387,7 +406,8 @@ const fillBeneath = () => {
     }
     // console.log(`this is after fillBeneath:\n`,currentTokensOnBoard)
     drawGameBoard()
-    startTurn()
+    turnHandlerPosition = 4
+    turnHandler()
 }
 
 const checkBeneath = () => {
@@ -406,7 +426,10 @@ const checkBeneath = () => {
     }
     if (dropDetected === true) {
             animationForCheckBeneath()
-    } else{startTurn()}
+    } else {
+        turnHandlerPosition = 4
+        turnHandler()
+    }
 }
 
 const refreshTokenArr = (deg) => {
@@ -440,7 +463,9 @@ const rotate = (direction) => {
         clearGameBoard()
         gameBoardContainer.style.transform = "rotate(0deg)"
         drawGameBoard()
-        checkBeneath()
+        turnHandlerPosition = 2
+        turnHandler()
+        // checkBeneath()
     // }, 3000)
 }
 ///////////////////////////////////////////////////////////////
@@ -456,9 +481,9 @@ const writeCurrentPlayer = () => {
 }
 
 const rotateHandler = () => {
-    clearSelectors()
+    // clearSelectors()
     let direction = Math.floor(Math.random()*2)===1?'cw':'ccw'
-    console.log('rotating ',direction)
+    // console.log('rotating ',direction)
     // rotate(direction)
     let mask = document.createElement('div')
     mask.classList.add('playfield-mask')
@@ -495,32 +520,49 @@ const rotateHandler = () => {
 }
 
 const clearSelectors = () => {
-    console.log('im clearing')
+    // console.log('im clearing')
     const divsToClear = document.querySelectorAll('.selector')
-    console.log(document.querySelectorAll('.selector'))
+    // console.log(document.querySelectorAll('.selector'))
     for (i = 0; i < divsToClear.length; i++){
         document.querySelector('.selector').remove()
-        console.log('removed')
+        // console.log('removed')
+    }
+}
+
+const checkRotate = () => {
+    // if ((turnCount)%2 === 0) {
+    //     roundsToRotate--
+    // }
+    if (roundsToRotate === 0) {
+        writeRounds()
+        rotateHandler()   
+    } else {
+        turnHandlerPosition = 6
+        turnHandler() 
     }
 }
 
 const turnHandler = () => {
-    // clearSelectors()
-    
-    turnCount++
-    detectScore()
-    writeRounds()
-    writeCurrentPlayer()
-    // writeCurrentPlayer()
-    // if (turnCount%2 === 0) {
-    //     roundsToRotate--
-    // }
-    
-    // if (roundsToRotate === 0) {
-    //     rotateHandler()   
-    // } else {
-    //     writeCurrentPlayer()
-    // }
+    switch (turnHandlerPosition) {
+        case 1:
+            detectScore()
+            break;
+        case 2:
+            checkBeneath()
+            break;
+        // case 3:
+        //     fillBeneath()
+        //     break;
+        case 4:
+            detectWin()
+            break;    
+        case 5:
+            checkRotate()
+            break;
+        case 6:
+            startTurn()
+            break;
+    } 
 }
 
 //////////////////////////////////////////////
@@ -536,7 +578,7 @@ const displayFirstPlayer = () => {
         document.querySelector('.popup').remove()
         document.querySelector('.playfield-mask').remove()
         startGame()
-    } ,1000)
+    } ,1500)
 }
 
 
@@ -549,14 +591,14 @@ const getImage = () => {
     image.src='./coin-flip-red-yellow/'+toLoad+'.png'
     imageValue++
 }
-let timer = null
+// let timer = null
 const pickFirstPlayerAnimation = () => {
     imageValue = 0
-    let endTime = Math.floor(Math.random() * 2) === 1?1750: 2280
+    let endTime = Math.floor(Math.random() * 2) === 1?2130: 1635
     console.log(endTime)
     let timerFast = setInterval(getImage, 10)
-    let timerFastEnd = setTimeout(() => {
-        console.log('medium timer starting')
+    setTimeout(() => {
+        console.log('medium timer starting'+imageValue)
         clearInterval(timerFast)
         let timerMed = setInterval(getImage, 20)
         setTimeout(() => {
@@ -566,10 +608,10 @@ const pickFirstPlayerAnimation = () => {
             setTimeout(() => {
                 clearInterval(timerSlow)
                 },endTime)
-        },2210)
+        },1400)
 
-    },2880)
-    if (endTime === 1750) {
+    },1400)
+    if (endTime === 2130) {
         firstPlayer.color = colors.color1
         secondPlayer.color = colors.color2
     } else {
@@ -583,14 +625,14 @@ const pickFirstPlayerAnimation = () => {
         firstPlayer.name = 'Player 2'
         secondPlayer.name = 'Player 1'
     }  
-    let displayWinner = setTimeout(displayFirstPlayer, 5390 + endTime)
+    let displayWinner = setTimeout(displayFirstPlayer, 4000 + endTime)
 }
 
 
 const assignColor = (event) => {
     player1ColorChoice = colors[event.srcElement.getAttribute('data-color')]
     player2ColorChoice = player1ColorChoice === colors.color1?colors.color2:colors.color1
-    console.log(`Player 1 :`,player1ColorChoice,`\nPlayer 2 :`,player2ColorChoice)
+    // console.log(`Player 1 :`,player1ColorChoice,`\nPlayer 2 :`,player2ColorChoice)
     let leftImage = null
     let rightImage = null
     if (player1ColorChoice === colors.color1){
@@ -615,7 +657,15 @@ const assignColor = (event) => {
     setTimeout(pickFirstPlayerAnimation, 500)
 }
 
-const pickColor = () => {
+const selectGameMode = () => {
+    document.getElementById('start-button').remove()
+    gameBoardContainer.innerHTML = `<div class="game-select">How many points to win?</div>
+    <div class="game-select-buttons"><button type="button" class="point-button" onclick="pickColor(200)">200</button><button type="button" class="point-button" onclick="pickColor(500)">500</button><button type="button" class="point-button" onclick="pickColor(1000)">1000</button></div>`
+}
+
+const pickColor = (pointsToEnd) => {
+    winningScore = pointsToEnd
+    gameBoardContainer.innerHTML = ''
     let mask = document.createElement('div')
     mask.classList.add('playfield-mask')
     body.appendChild(mask)
@@ -635,8 +685,10 @@ const pickColor = () => {
 const resetGame = () => {
     player1Score = 0
     player2Score = 0
-    turnCount = 1
+    turnCount = 0
     roundsToRotate = 3
+    boardFull = false
+    turnHandlerPosition = 6
     currentTokensOnBoard = []
     let scoreboards = document.querySelectorAll('.scoreboard')
     for (let i = 0; i < scoreboards.length; i++) {
@@ -647,6 +699,7 @@ const resetGame = () => {
     clearGameBoard()
     isOrientationNormal = true
     pickColor()
+    
 
 
 }
@@ -681,20 +734,20 @@ document.addEventListener('DOMContentLoaded', flipAnimation())
 
 // animation for score detection:
 const animationForScoreDetection = () => {
-    clearSelectors()    
+    // clearSelectors()    
     let blink = setInterval(() => {
         for (let i = 0; i < 42; i++){
             if (currentTokensOnBoard[i].remove === true) {
                 let thisSpace = document.getElementById(`space${i}`)
                 let orginalColor = currentTokensOnBoard[i].controlledBy.color
-                // console.log('og color: ',orginalColor)
-                // console.log(`color: `,thisSpace.style.backgroundColor)
+                console.log('og color: ',orginalColor)
+                console.log(`color: `,thisSpace.style.backgroundColor)
                 if (thisSpace.style.backgroundColor != colors.color3) {
-                    // console.log('tag')
+                    console.log('tag')
                     thisSpace.style.backgroundColor = colors.color3
-                    // console.log(`color: `,thisSpace.style.backgroundColor)
+                    console.log(`color: `,thisSpace.style.backgroundColor)
                 } else {
-                    // console.log('tag switch back')
+                    console.log('tag switch back')
                     thisSpace.style.backgroundColor = orginalColor
                 }
             }
@@ -704,13 +757,17 @@ const animationForScoreDetection = () => {
         scoring = false
         clearInterval(blink)
         score()
+        // clearGameBoard()
+        // drawGameBoard()
+        // turnHandlerPosition = 2
+        // turnHandler()
     },3000)
 }
 
 
 // animation for rotating the game board
 animationForRotation = (direction) => {
-    clearSelectors()
+    // clearSelectors()
     let moveModifier = direction === 'cw'?1:-1
     let position = .5
     let frameInterval = 10
@@ -729,14 +786,14 @@ animationForRotation = (direction) => {
 
 // animation for moving pieces after check beneath
 const animationForCheckBeneath = () => {
-    clearSelectors()
-    const frameInterval = 60
+    // clearSelectors()
+    const frameInterval = 15
     let maxSpacesBeneath = 0
     let moving = []
     for (let i = 0; i < 42; i++){
         if (currentTokensOnBoard[i].spacesBeneath > 0) {
             let thisId = `space${i}`
-            console.log(thisId)
+            // console.log(thisId)
             let thisMaxMove = currentTokensOnBoard[i].spacesBeneath
             moving.push({id: thisId, move: 1, maxMove: thisMaxMove})
             if(currentTokensOnBoard[i].spacesBeneath > maxSpacesBeneath) {
@@ -744,19 +801,39 @@ const animationForCheckBeneath = () => {
             }
         }
     }    
-    setInterval(() => {
+    let dropping = setInterval(() => {
         for (let t = 0; t < moving.length; t++) {
             let thisSpace = document.getElementById(moving[t].id)
             if (moving[t].move < 9 * moving[t].maxMove)  {
                 thisSpace.style.top = moving[t].move + 'vh'
-                moving[t].move++
+                moving[t].move += .5
             }
         }
     },frameInterval)
-    setTimeout(fillBeneath,((maxSpacesBeneath * (frameInterval * 10)) + 500))   
+    setTimeout(()=>{
+        clearInterval(dropping)
+        fillBeneath()
+    },((maxSpacesBeneath * (frameInterval * 20)) + 500))   
 }
 
 
-
-
 // animation for selecting a place to drop
+
+const animateTokenPlacement = (spaces) => {
+    let token = document.querySelector('.selected').firstChild
+    let frameInterval = 15
+    let move = .5
+    let maxMove = spaces * 18
+    let dropping = setInterval(()=>{
+        token.style.top = move + 'vh'
+        move += .5
+    },frameInterval) 
+    setTimeout(()=>{
+        clearInterval(dropping)
+        document.querySelector('.selected').remove()
+        clearGameBoard()
+        drawGameBoard()
+        turnHandlerPosition = 1
+        turnHandler()
+    },maxMove * frameInterval) 
+}
