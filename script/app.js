@@ -6,7 +6,7 @@ let isOrientationNormal = true
 const columns = () => isOrientationNormal?7:6
 const rows = () => isOrientationNormal?6:7
 
-let winningScore = 100
+let winningScore = null
 
 const colors = {color1: 'rgb(255, 255, 0)', color2: 'rgb(255, 0, 0)', color3: 'rgb(255, 255, 255)'}
 
@@ -85,10 +85,10 @@ const drawWin = () => {
 }
 
 // this detects for winning conditions before every turn (and at the start of a turn in the event of a full gameboard)
-const detectWin = () => {
+const detectWin = (fromTurn) => {
     if (player1Score >= winningScore || player2Score >= winningScore || boardFull === true) {
         drawWin()
-    } else {
+    } else if (fromTurn != true){
         turnHandlerPosition = 5
         turnHandler()
     }
@@ -292,6 +292,7 @@ const startTurn = () => {
         boardFull = true
         detectWin()
     }
+    detectWin(true)
     turnCount++
     writeRounds()
     if ((turnCount)%2 === 0) {
@@ -370,7 +371,7 @@ const fillBeneath = () => {
         }
     }
     drawGameBoard()
-    turnHandlerPosition = 4
+    turnHandlerPosition = 1
     turnHandler()
 }
 
