@@ -40,6 +40,7 @@ const secondPlayer = {
 const imageArr = [0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350]
 
 // these are used for checking scoring playfields:
+// this array tells the program where to check wins when the board is not rotated
 const scoringPositionsStandard = [
     {row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:true},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},
     {row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:true},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},
@@ -49,6 +50,7 @@ const scoringPositionsStandard = [
     {row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false}
 ]
 
+// this array tells the program where to check wins when the board is rotated
 const scoringPositionsRotated = [
     {row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},
     {row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: true, column: true, d1: true, d2:false},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},{row: false, column: true, d1: false, d2:true},
@@ -59,6 +61,8 @@ const scoringPositionsRotated = [
     {row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: true, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false},{row: false, column: false, d1: false, d2:false}
 ]
 
+
+// this messages the players when there is a win state
 const drawWin = () => {
     let mask = document.createElement('div')
     mask.classList.add('playfield-mask')
@@ -80,6 +84,7 @@ const drawWin = () => {
     body.appendChild(winPopUp)
 }
 
+// this detects for winning conditions before every turn (and at the start of a turn in the event of a full gameboard)
 const detectWin = () => {
     if (player1Score >= winningScore || player2Score >= winningScore || boardFull === true) {
         drawWin()
@@ -89,7 +94,7 @@ const detectWin = () => {
     }
 }
 
-
+// this adds points and resets the board after the scoring animation
 const score = () => {
     let scoring = false    
     for (let i =0; i < 42; i++){
@@ -109,6 +114,7 @@ const score = () => {
     } 
 }
 
+// this checks the current current tokens on the gameboard against the scoring arrays, and then maths if there is a line
 const detectScore = () => {
     const checkArr = isOrientationNormal?scoringPositionsStandard:scoringPositionsRotated
     let scoreDetected = false
@@ -190,18 +196,22 @@ const detectScore = () => {
     }
 }
 
+// this creates the initial currentTokensOnBoard array
 const createTokenArr = (arr) => {
     for (i = 0; i < 42; i++) {
         arr.push({isOccupied: false, controlledBy: null, spacesBeneath: 0, remove: false})
     }
 }
 
+
+// this is used whenever the gameboard needs to be redrawn by removing all tokens temporarily (happens after most animations and calculations)
 const clearGameBoard =() => {
     while (gameBoardContainer.firstChild) {
         gameBoardContainer.removeChild(gameBoardContainer.firstChild)
     }
 }
 
+// this is used at the start of every turn to ensure there are still available spaces
 const detectBoardFull = () => {
     let count = 0
     currentTokensOnBoard.forEach((element)=>{
@@ -212,6 +222,7 @@ const detectBoardFull = () => {
     return count
 }
 
+// this creates the layout after a game is initialized
 const startGame = () => {
     
     createTokenArr(currentTokensOnBoard)
@@ -255,7 +266,7 @@ const addToken = (e) => {
     let toSubtract = isOrientationNormal?7:6
 
     let maxCheck = isOrientationNormal?6:7
-
+// this checks where the lowest open space is in the allowed collumn, and then changes the used selector div so the highlight can be removed for the token drop animation
     let currentPlayer = turnCount%2===0?secondPlayer:firstPlayer
     for (let i = 0; i < maxCheck; i++) {
          if (!currentTokensOnBoard[squareToCheck].isOccupied) {
@@ -348,6 +359,7 @@ const drawGameBoard = () => {
     }
 }
 
+// this rearranges the currentTokensOnBoard array after tokens have to shift downwards
 const fillBeneath = () => {
     clearGameBoard()
     for (let i = 41; i >= 0; i--) {
@@ -362,6 +374,7 @@ const fillBeneath = () => {
     turnHandler()
 }
 
+// this checks if tokens can be dropped downwards
 const checkBeneath = () => {
     let dropDetected = false
     for (let i = 0; i < 42; i++) {
@@ -382,6 +395,7 @@ const checkBeneath = () => {
     }
 }
 
+// the math here is complicated, but is used when the board rotates to know which tokens should be reassigned to which locations
 const refreshTokenArr = (deg) => {
     let newArr = []
     let start = deg===90?42:-1
@@ -399,7 +413,7 @@ const refreshTokenArr = (deg) => {
 }
 
 
-
+// this rotates the gameboard container and calls the function above when the board rotates
 const rotate = (direction) => {
     const deg = direction === 'cw'?90:-90
     isOrientationNormal = !isOrientationNormal
@@ -410,8 +424,7 @@ const rotate = (direction) => {
         turnHandlerPosition = 2
         turnHandler()
 }
-///////////////////////////////////////////////////////////////
-// turn handler
+
 const writeRounds = () => {
     const rounds = document.getElementById('round-to-turn')
     rounds.innerText = roundsToRotate
@@ -422,6 +435,7 @@ const writeCurrentPlayer = () => {
     document.getElementById('current-turn').style.color = curPlayer.color 
 }
 
+// this announces a rotation with a popup and determines which direction to rotate
 const rotateHandler = () => {
     let direction = Math.floor(Math.random()*2)===1?'cw':'ccw'
     let mask = document.createElement('div')
@@ -457,6 +471,7 @@ const rotateHandler = () => {
     
 }
 
+// this is used to remove the highlight effect
 const clearSelectors = () => {
     const divsToClear = document.querySelectorAll('.selector')
     for (i = 0; i < divsToClear.length; i++){
@@ -464,6 +479,7 @@ const clearSelectors = () => {
     }
 }
 
+// this merely checks the rounds and if its time to rotate
 const checkRotate = () => {
     if (roundsToRotate === 0) {
         writeRounds()
@@ -474,6 +490,7 @@ const checkRotate = () => {
     }
 }
 
+// this is the backbone for what functions need to run throughout a turn and porevents animations from overlapping
 const turnHandler = () => {
     switch (turnHandlerPosition) {
         case 1:
@@ -513,7 +530,8 @@ const displayFirstPlayer = () => {
     } ,1500)
 }
 
-
+// /////////////////
+// animation for the coin flip to see who goes first, and setting various variables based on the result
 let imageValue = 0
 
 const getImage = () => {
@@ -584,7 +602,7 @@ const assignColor = (event) => {
     </div>`
     setTimeout(pickFirstPlayerAnimation, 500)
 }
-
+// //////////////////////////////////////////
 const selectGameMode = () => {
     document.getElementById('start-button').remove()
     gameBoardContainer.innerHTML = `<div class="game-select">How many points to win?</div>
@@ -610,6 +628,8 @@ const pickColor = (pointsToEnd) => {
     document.querySelector('#red').addEventListener('click', assignColor)
 }
 
+
+// used to reset the game after a game ends
 const resetGame = () => {
     player1Score = 0
     player2Score = 0
