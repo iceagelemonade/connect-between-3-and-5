@@ -1,3 +1,5 @@
+// very nice organisation in a relatively huge file.
+// when/if you refactor consider breaking it up into different files an importing funcitons where necessary - We'll learn more about working liek this in the next unit 
 
 const body = document.querySelector('body')
 const mainContainer = document.querySelector('.main-container')
@@ -492,6 +494,7 @@ const checkRotate = () => {
 }
 
 // this is the backbone for what functions need to run throughout a turn and porevents animations from overlapping
+// looks like we don't check for scores(?)/wins(?) on a rotate see bug report in pull
 const turnHandler = () => {
     switch (turnHandlerPosition) {
         case 1:
