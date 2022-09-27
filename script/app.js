@@ -647,7 +647,7 @@ const resetGame = () => {
     document.querySelector('.playfield-mask').remove()
     clearGameBoard()
     isOrientationNormal = true
-    pickColor()
+    pickColor(winningScore)
     
 
 
